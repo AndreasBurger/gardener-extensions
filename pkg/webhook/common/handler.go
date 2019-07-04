@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package controlplane
+package common
 
 import (
 	"context"
@@ -32,8 +32,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission/types"
 )
 
-// newHandler creates a new handler for the given types, using the given mutator, and logger.
-func newHandler(mgr manager.Manager, types []runtime.Object, mutator Mutator, logger logr.Logger) (*handler, error) {
+// NewHandler creates a new handler for the given types, using the given mutator, and logger.
+func NewHandler(mgr manager.Manager, types []runtime.Object, mutator Mutator, logger logr.Logger) (*handler, error) {
 	// Build a map of the given types keyed by their GVKs
 	typesMap, err := buildTypesMap(mgr, types)
 	if err != nil {

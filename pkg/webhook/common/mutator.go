@@ -12,18 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package controlplane
+package common
 
 import (
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"context"
+
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
-// GenerationChangedPredicate is a predicate for generation changes.
-func GenerationChangedPredicate() predicate.Predicate {
-	return predicate.Funcs{
-		UpdateFunc: func(event event.UpdateEvent) bool {
-			return event.MetaOld.GetGeneration() != event.MetaNew.GetGeneration()
-		},
-	}
+// Mutator validates and if needed mutates objects.
+type Mutator interface {
+	// Mutate validates and if needed mutates the given object.
+	Mutate(ctx context.Context, obj runtime.Object) error
 }

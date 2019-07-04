@@ -17,6 +17,8 @@ package genericmutator
 import (
 	"context"
 
+	webhookcommons "github.com/gardener/gardener-extensions/pkg/webhook/common"
+
 	extensionscontroller "github.com/gardener/gardener-extensions/pkg/controller"
 	"github.com/gardener/gardener-extensions/pkg/controller/operatingsystemconfig/oscommon/cloudinit"
 	"github.com/gardener/gardener-extensions/pkg/util"
@@ -67,7 +69,7 @@ func NewMutator(
 	kubeletConfigCodec controlplane.KubeletConfigCodec,
 	fciCodec controlplane.FileContentInlineCodec,
 	logger logr.Logger,
-) controlplane.Mutator {
+) webhookcommons.Mutator {
 	return &mutator{
 		ensurer:            ensurer,
 		unitSerializer:     unitSerializer,

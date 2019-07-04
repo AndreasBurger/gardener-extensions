@@ -17,7 +17,6 @@ package controlplanebackup
 import (
 	"github.com/gardener/gardener-extensions/controllers/provider-packet/pkg/imagevector"
 	"github.com/gardener/gardener-extensions/controllers/provider-packet/pkg/packet"
-	extensionswebhook "github.com/gardener/gardener-extensions/pkg/webhook"
 	"github.com/gardener/gardener-extensions/pkg/webhook/controlplane"
 	"github.com/gardener/gardener-extensions/pkg/webhook/controlplane/genericmutator"
 
@@ -34,7 +33,7 @@ var logger = log.Log.WithName("packet-controlplanebackup-webhook")
 func AddToManager(mgr manager.Manager) (webhook.Webhook, error) {
 	logger.Info("Adding webhook to manager")
 	return controlplane.Add(mgr, controlplane.AddArgs{
-		Kind:     extensionswebhook.BackupKind,
+		Kind:     controlplane.BackupKind,
 		Provider: packet.Type,
 		Types:    []runtime.Object{&appsv1.StatefulSet{}},
 		Mutator:  genericmutator.NewMutator(NewEnsurer(imagevector.ImageVector(), logger), nil, nil, nil, logger),

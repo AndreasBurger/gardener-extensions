@@ -17,7 +17,6 @@ package controlplaneexposure
 import (
 	"github.com/gardener/gardener-extensions/controllers/provider-openstack/pkg/apis/config"
 	"github.com/gardener/gardener-extensions/controllers/provider-openstack/pkg/openstack"
-	extensionswebhook "github.com/gardener/gardener-extensions/pkg/webhook"
 	"github.com/gardener/gardener-extensions/pkg/webhook/controlplane"
 	"github.com/gardener/gardener-extensions/pkg/webhook/controlplane/genericmutator"
 
@@ -46,7 +45,7 @@ var logger = log.Log.WithName("openstack-controlplaneexposure-webhook")
 func AddToManagerWithOptions(mgr manager.Manager, opts AddOptions) (webhook.Webhook, error) {
 	logger.Info("Adding webhook to manager")
 	return controlplane.Add(mgr, controlplane.AddArgs{
-		Kind:     extensionswebhook.SeedKind,
+		Kind:     controlplane.SeedKind,
 		Provider: openstack.Type,
 		Types:    []runtime.Object{&appsv1.Deployment{}, &corev1.Service{}, &appsv1.StatefulSet{}},
 		Mutator:  genericmutator.NewMutator(NewEnsurer(&opts.ETCDStorage, logger), nil, nil, nil, logger),

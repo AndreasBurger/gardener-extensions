@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package controlplane
+package network
 
 import (
 	extensionswebhook "github.com/gardener/gardener-extensions/pkg/webhook"
@@ -28,36 +28,25 @@ import (
 
 const (
 	// WebhookName is the webhook name.
-	WebhookName = "controlplane"
+	WebhookName = "network"
 	// NameSuffix is a common suffix for all webhook names.
 	NameSuffix = "extensions.gardener.cloud"
-	// ExposureWebhookName is the exposure webhook name.
-	ExposureWebhookName = "controlplaneexposure"
-	// BackupWebhookName is the backup webhook name.
-	BackupWebhookName = "controlplanebackup"
+	// ShootProviderLabel is a label on shoot namespaces in the seed cluster that identifies the Shoot cloud provider.
+	// TODO Move this constant to gardener/gardener
+	ShootCloudProviderLabel = "shoot.gardener.cloud/provider"
+	// NetworkProviderLabel is a label on shoot namespaces in the seed cluster that identifies the Shoot network provider.
+	// TODO Move this constant to gardener/gardener
+	ShootNetworkProviderLabel = "`network.gardener.cloud/provider=calico`"
 )
 
-// Kind is a type for webhook kinds.
-type Kind string
-
-// Webhook kinds.
-const (
-	// A seed webhook is applied only to those shoot namespaces that have the correct Seed provider label.
-	SeedKind Kind = "seed"
-	// A shoot webhook is applied only to those shoot namespaces that have the correct Shoot provider label.
-	ShootKind Kind = "shoot"
-	// A backup webhook is applied only to those shoot namespaces that have the correct Backup provider label.
-	BackupKind Kind = "backup"
-)
-
-var logger = log.Log.WithName("controlplane-webhook")
+var logger = log.Log.WithName("network-webhook")
 
 // AddArgs are arguments for adding a controlplane webhook to a manager.
 type AddArgs struct {
-	// Kind is the kind of this webhook
-	Kind Kind
-	// Provider is the provider of this webhook.
-	Provider string
+	// NetworkProvider is the network provider for this webhook
+	NetworkProvider string
+	// CloudProvider is the cloud provider of this webhook.
+	CloudProvider string
 	// Types is a list of resource types.
 	Types []runtime.Object
 	// Mutator is a mutator to be used by the admission handler.
@@ -66,7 +55,7 @@ type AddArgs struct {
 
 // Add creates a new controlplane webhook and adds it to the given Manager.
 func Add(mgr manager.Manager, args AddArgs) (webhook.Webhook, error) {
-	logger := logger.WithValues("kind", args.Kind, "provider", args.Provider)
+	logger := logger.WithValues("network-provider", args.NetworkProvider, "cloud-provider", args.CloudProvider)
 
 	// Create handler
 	handler, err := common.NewHandler(mgr, args.Types, args.Mutator, logger)
@@ -75,19 +64,18 @@ func Add(mgr manager.Manager, args AddArgs) (webhook.Webhook, error) {
 	}
 
 	// Build namespace selector from the webhook kind and provider
-	namespaceSelector, err := buildSelector(args.Kind, args.Provider)
+	namespaceSelector, err := buildSelector(args.NetworkProvider, args.CloudProvider)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create webhook
 	var (
-		name              = getName(args.Kind)
-		fullQualifiedName = name + args.Provider + "." + NameSuffix
-		path              = "/" + name
+		name = WebhookName + NameSuffix
+		path = "/" + WebhookName
 	)
-	logger.Info("Creating controlplane webhook", "name", name)
-	wh, err := extensionswebhook.NewWebhook(mgr, namespaceSelector, fullQualifiedName, path, args.Types, handler)
+	logger.Info("Creating network webhook", "name", name)
+	wh, err := extensionswebhook.NewWebhook(mgr, namespaceSelector, name, path, args.Types, handler)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create controlplane webhook")
 	}
@@ -96,35 +84,12 @@ func Add(mgr manager.Manager, args AddArgs) (webhook.Webhook, error) {
 }
 
 // buildSelector creates and returns a LabelSelector for the given webhook kind and provider.
-func buildSelector(kind Kind, provider string) (*metav1.LabelSelector, error) {
-	// Determine label selector key from the kind
-	var key string
-	switch kind {
-	case SeedKind:
-		key = extensionswebhook.SeedProviderLabel
-	case ShootKind:
-		key = extensionswebhook.ShootProviderLabel
-	case BackupKind:
-		key = extensionswebhook.BackupProviderLabel
-	default:
-		return nil, errors.Errorf("invalid webhook kind '%s'", kind)
-	}
-
+func buildSelector(networkProvider, cloudProvider string) (*metav1.LabelSelector, error) {
 	// Create and return LabelSelector
 	return &metav1.LabelSelector{
 		MatchExpressions: []metav1.LabelSelectorRequirement{
-			{Key: key, Operator: metav1.LabelSelectorOpIn, Values: []string{provider}},
+			{Key: ShootCloudProviderLabel, Operator: metav1.LabelSelectorOpIn, Values: []string{cloudProvider}},
+			{Key: ShootNetworkProviderLabel, Operator: metav1.LabelSelectorOpIn, Values: []string{networkProvider}},
 		},
 	}, nil
-}
-
-func getName(kind Kind) string {
-	switch kind {
-	case SeedKind:
-		return ExposureWebhookName
-	case BackupKind:
-		return BackupWebhookName
-	default:
-		return WebhookName
-	}
 }

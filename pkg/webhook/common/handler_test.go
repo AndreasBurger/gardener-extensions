@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package controlplane
+package common
 
 import (
 	"context"
 	"errors"
 	"net/http"
+
+	"sigs.k8s.io/controller-runtime/pkg/runtime/log"
 
 	mockmanager "github.com/gardener/gardener-extensions/pkg/mock/controller-runtime/manager"
 	mocktypes "github.com/gardener/gardener-extensions/pkg/mock/controller-runtime/webhook/admission/types"
@@ -45,6 +47,7 @@ var _ = Describe("Handler", func() {
 		ctrl    *gomock.Controller
 		mgr     *mockmanager.MockManager
 		decoder *mocktypes.MockDecoder
+		logger  = log.Log.WithName("controlplane-webhook")
 
 		objTypes = []runtime.Object{&corev1.Service{}}
 		svc      = &corev1.Service{
@@ -88,7 +91,7 @@ var _ = Describe("Handler", func() {
 			mutator.EXPECT().Mutate(context.TODO(), svc).Return(nil)
 
 			// Create handler
-			h, err := newHandler(mgr, objTypes, mutator, logger)
+			h, err := NewHandler(mgr, objTypes, mutator, logger)
 			Expect(err).NotTo(HaveOccurred())
 			h.decoder = decoder
 
@@ -111,7 +114,7 @@ var _ = Describe("Handler", func() {
 			})
 
 			// Create handler
-			h, err := newHandler(mgr, objTypes, mutator, logger)
+			h, err := NewHandler(mgr, objTypes, mutator, logger)
 			Expect(err).NotTo(HaveOccurred())
 			h.decoder = decoder
 
@@ -139,7 +142,7 @@ var _ = Describe("Handler", func() {
 			mutator.EXPECT().Mutate(context.TODO(), svc).Return(errors.New("test error"))
 
 			// Create handler
-			h, err := newHandler(mgr, objTypes, mutator, logger)
+			h, err := NewHandler(mgr, objTypes, mutator, logger)
 			Expect(err).NotTo(HaveOccurred())
 			h.decoder = decoder
 

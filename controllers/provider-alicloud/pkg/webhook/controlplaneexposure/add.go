@@ -17,7 +17,6 @@ package controlplaneexposure
 import (
 	"github.com/gardener/gardener-extensions/controllers/provider-alicloud/pkg/alicloud"
 	"github.com/gardener/gardener-extensions/controllers/provider-alicloud/pkg/apis/config"
-	extensionswebhook "github.com/gardener/gardener-extensions/pkg/webhook"
 	"github.com/gardener/gardener-extensions/pkg/webhook/controlplane"
 	"github.com/gardener/gardener-extensions/pkg/webhook/controlplane/genericmutator"
 
@@ -45,7 +44,7 @@ var logger = log.Log.WithName("alicloud-controlplaneexposure-webhook")
 func AddToManagerWithOptions(mgr manager.Manager, opts AddOptions) (webhook.Webhook, error) {
 	logger.Info("Adding webhook to manager")
 	return controlplane.Add(mgr, controlplane.AddArgs{
-		Kind:     extensionswebhook.SeedKind,
+		Kind:     controlplane.SeedKind,
 		Provider: alicloud.Type,
 		Types:    []runtime.Object{&appsv1.Deployment{}, &appsv1.StatefulSet{}},
 		Mutator:  genericmutator.NewMutator(NewEnsurer(&opts.ETCDStorage, logger), nil, nil, nil, logger),

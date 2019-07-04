@@ -18,7 +18,6 @@ import (
 	"github.com/gardener/gardener-extensions/controllers/provider-gcp/pkg/apis/config"
 	"github.com/gardener/gardener-extensions/controllers/provider-gcp/pkg/gcp"
 	"github.com/gardener/gardener-extensions/controllers/provider-gcp/pkg/internal/imagevector"
-	extensionswebhook "github.com/gardener/gardener-extensions/pkg/webhook"
 	"github.com/gardener/gardener-extensions/pkg/webhook/controlplane"
 	"github.com/gardener/gardener-extensions/pkg/webhook/controlplane/genericmutator"
 
@@ -46,7 +45,7 @@ var logger = log.Log.WithName("gcp-controlplanebackup-webhook")
 func AddToManagerWithOptions(mgr manager.Manager, opts AddOptions) (webhook.Webhook, error) {
 	logger.Info("Adding webhook to manager")
 	return controlplane.Add(mgr, controlplane.AddArgs{
-		Kind:     extensionswebhook.BackupKind,
+		Kind:     controlplane.BackupKind,
 		Provider: gcp.Type,
 		Types:    []runtime.Object{&appsv1.StatefulSet{}},
 		Mutator:  genericmutator.NewMutator(NewEnsurer(&opts.ETCDBackup, imagevector.ImageVector(), logger), nil, nil, nil, logger),

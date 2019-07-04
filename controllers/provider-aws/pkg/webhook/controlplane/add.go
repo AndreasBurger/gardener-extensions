@@ -16,7 +16,6 @@ package controlplane
 
 import (
 	"github.com/gardener/gardener-extensions/controllers/provider-aws/pkg/aws"
-	extensionswebhook "github.com/gardener/gardener-extensions/pkg/webhook"
 	"github.com/gardener/gardener-extensions/pkg/webhook/controlplane"
 	"github.com/gardener/gardener-extensions/pkg/webhook/controlplane/genericmutator"
 
@@ -35,7 +34,7 @@ func AddToManager(mgr manager.Manager) (webhook.Webhook, error) {
 	logger.Info("Adding webhook to manager")
 	fciCodec := controlplane.NewFileContentInlineCodec()
 	return controlplane.Add(mgr, controlplane.AddArgs{
-		Kind:     extensionswebhook.ShootKind,
+		Kind:     controlplane.ShootKind,
 		Provider: aws.Type,
 		Types:    []runtime.Object{&appsv1.Deployment{}, &extensionsv1alpha1.OperatingSystemConfig{}},
 		Mutator: genericmutator.NewMutator(NewEnsurer(logger), controlplane.NewUnitSerializer(),

@@ -82,7 +82,12 @@ var _ = Describe("Options", func() {
 			mgr.EXPECT().GetScheme().Return(scheme)
 			mgr.EXPECT().GetRESTMapper().Return(mapper)
 
-			webhook, err := NewWebhook(mgr, ShootKind, provider, "controlplane", []runtime.Object{&appsv1.Deployment{}}, handler)
+			namespaceSelector := &metav1.LabelSelector{
+				MatchExpressions: []metav1.LabelSelectorRequirement{
+					{Key: ShootProviderLabel, Operator: metav1.LabelSelectorOpIn, Values: []string{provider}},
+				},
+			}
+			webhook, err := NewWebhook(mgr, namespaceSelector, "controlplane.aws.extensions.gardener.cloud", "/controlplane", []runtime.Object{&appsv1.Deployment{}}, handler)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(webhook).To(Equal(&admission.Webhook{
 				Name: "controlplane.aws.extensions.gardener.cloud",
@@ -116,7 +121,12 @@ var _ = Describe("Options", func() {
 			mgr.EXPECT().GetScheme().Return(scheme).Times(2)
 			mgr.EXPECT().GetRESTMapper().Return(mapper).Times(2)
 
-			webhook, err := NewWebhook(mgr, SeedKind, provider, "controlplaneexposure", []runtime.Object{&corev1.Service{}, &appsv1.Deployment{}}, handler)
+			namespaceSelector := &metav1.LabelSelector{
+				MatchExpressions: []metav1.LabelSelectorRequirement{
+					{Key: SeedProviderLabel, Operator: metav1.LabelSelectorOpIn, Values: []string{provider}},
+				},
+			}
+			webhook, err := NewWebhook(mgr, namespaceSelector, "controlplaneexposure.aws.extensions.gardener.cloud", "/controlplaneexposure", []runtime.Object{&corev1.Service{}, &appsv1.Deployment{}}, handler)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(webhook).To(Equal(&admission.Webhook{
 				Name: "controlplaneexposure.aws.extensions.gardener.cloud",

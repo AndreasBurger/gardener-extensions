@@ -30,20 +30,11 @@ spec:
         - networking-calico-controller-manager
         - --max-concurrent-reconciles={{ .Values.concurrentSyncs }}
         - --disable-controllers={{ .Values.disableControllers | join "," }}
-        - --webhook-config-mode=service
-        - --webhook-config-name=gardener-extension-networking-calico
-        - --webhook-config-namespace={{ .Release.Namespace }}
-        - --webhook-config-service-selectors={"app.kubernetes.io/name":"gardener-extension-networking-calico","app.kubernetes.io/instance":"{{ .Release.Name }}"}
-        - --webhook-server-port={{ .Values.webhookConfig.serverPort }}
         env:
         - name: LEADER_ELECTION_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        ports:
-          - name: webhook-server
-            containerPort: {{ .Values.webhookConfig.serverPort }}
-            protocol: TCP
 {{- if .Values.resources }}
         resources:
 {{ toYaml .Values.resources | nindent 10 }}

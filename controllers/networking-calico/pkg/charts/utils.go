@@ -33,7 +33,8 @@ func ComputeCalicoChartValues(network *extensionsv1alpha1.Network, config *calic
 			"podCIDR": network.Spec.PodCIDR,
 		},
 		"config": map[string]string{
-			"backend": string(config.Backend),
+			"backend":               string(config.Backend),
+			"ipAutodetectionMethod": config.IPAutoDetectionMethod,
 		},
 	}
 

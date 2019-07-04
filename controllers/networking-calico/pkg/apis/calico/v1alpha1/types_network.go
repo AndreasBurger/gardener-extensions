@@ -37,6 +37,9 @@ type NetworkConfig struct {
 	IPAM IPAM `json:"ipam"`
 	// Backend defines whether a backend should be used or not (e.g., bird or None)
 	Backend Backend `json:"backend"`
+	// IPAutoDetectionMethod is the method to use to autodetect the IPv4 address for this host. This is only used when the IPv4 address is being autodetected.
+	// https://docs.projectcalico.org/v2.2/reference/node/configuration#ip-autodetection-methods
+	IPAutoDetectionMethod string `json:"ipAutodetectionMethod"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

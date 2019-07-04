@@ -21,6 +21,7 @@ import (
 	controlplanewebhook "github.com/gardener/gardener-extensions/controllers/provider-azure/pkg/webhook/controlplane"
 	controlplanebackupwebhook "github.com/gardener/gardener-extensions/controllers/provider-azure/pkg/webhook/controlplanebackup"
 	controlplaneexposurewebhook "github.com/gardener/gardener-extensions/controllers/provider-azure/pkg/webhook/controlplaneexposure"
+	networkwebhook "github.com/gardener/gardener-extensions/controllers/provider-azure/pkg/webhook/network"
 	controllercmd "github.com/gardener/gardener-extensions/pkg/controller/cmd"
 	extensionscontrolplanecontroller "github.com/gardener/gardener-extensions/pkg/controller/controlplane"
 	extensionsinfrastructurecontroller "github.com/gardener/gardener-extensions/pkg/controller/infrastructure"
@@ -41,8 +42,9 @@ func ControllerSwitchOptions() *controllercmd.SwitchOptions {
 // WebhookSwitchOptions are the webhookcmd.SwitchOptions for the provider webhooks.
 func WebhookSwitchOptions() *webhookcmd.SwitchOptions {
 	return webhookcmd.NewSwitchOptions(
-		webhookcmd.Switch(extensioncontrolplanewebhook.WebhookName, controlplanewebhook.AddToManager),
+		webhookcmd.Switch(extensioncontrolplanewebhook.WebhookName, networkwebhook.AddToManager),
 		webhookcmd.Switch(extensioncontrolplanewebhook.ExposureWebhookName, controlplaneexposurewebhook.AddToManager),
 		webhookcmd.Switch(extensioncontrolplanewebhook.BackupWebhookName, controlplanebackupwebhook.AddToManager),
+		webhookcmd.Switch(extensioncontrolplanewebhook.WebhookName, controlplanewebhook.AddToManager),
 	)
 }

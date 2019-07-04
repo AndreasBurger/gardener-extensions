@@ -125,6 +125,11 @@ spec:
             - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
               value: "ACCEPT"
             # Auto-detect the BGP IP address.
+           {{- if .Values.ipAutodetectionMethod }}
+            # On metal the ip is bound to the lo interface (routing to the host).
+            - name: IP_AUTODETECTION_METHOD
+              value: "{{ .Values.ipAutodetectionMethod }}"
+            {{- end }}
             - name: IP
               value: "autodetect"
             # Disable IPV6 on Kubernetes.

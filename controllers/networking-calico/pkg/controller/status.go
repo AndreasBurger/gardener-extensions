@@ -1,0 +1,73 @@
+// Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved. This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package controller
+
+import (
+	"context"
+
+	gardencorev1alpha1 "github.com/gardener/gardener/pkg/apis/core/v1alpha1"
+
+	calicov1alpha1 "github.com/gardener/gardener-extensions/controllers/networking-calico/pkg/apis/calico/v1alpha1"
+	calicov1aplha1 "github.com/gardener/gardener-extensions/controllers/networking-calico/pkg/apis/calico/v1alpha1"
+	extensionscontroller "github.com/gardener/gardener-extensions/pkg/controller"
+	extensionsv1alpha1 "github.com/gardener/gardener/pkg/apis/extensions/v1alpha1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/util/retry"
+)
+
+func (a *actuator) updateProviderStatus(
+	ctx context.Context,
+	network *extensionsv1alpha1.Network,
+	config *calicov1aplha1.NetworkConfig,
+) error {
+	status, err := a.ComputeNetworkStatus(config)
+	if err != nil {
+		return err
+	}
+
+	return extensionscontroller.TryUpdateStatus(ctx, retry.DefaultBackoff, a.client, network, func() error {
+		network.Status.ProviderStatus = &runtime.RawExtension{Object: status}
+		network.Status.LastOperation = extensionscontroller.LastOperation(gardencorev1alpha1.LastOperationTypeReconcile,
+			gardencorev1alpha1.LastOperationStateSucceeded,
+			100,
+			"Calico was configured successfully")
+		return nil
+	})
+}
+
+func (a *actuator) ComputeNetworkStatus(networkConfig *calicov1alpha1.NetworkConfig) (*calicov1alpha1.NetworkConfigStatus, error) {
+	var (
+		status = &calicov1alpha1.NetworkConfigStatus{
+			TypeMeta: StatusTypeMeta,
+		}
+	)
+	// TODO: return health-check results for calico components as well network connectivity tests pass result
+	//     components:
+	//      kubeControllers: true
+	//      calicoNodes: true
+	//    connectivityTests:
+	//      pods: true
+	//      services: true
+	//    networkModules:
+	//      arp_proxy: true
+	//    config:
+	//      clusterCIDR: 192.168.0.0/24
+	//      serviceCIDR:  10.96.0.0/24
+	//      ipam:
+	//        type: host-local
+	//        cidr: usePodCIDR
+
+	return status, nil
+}

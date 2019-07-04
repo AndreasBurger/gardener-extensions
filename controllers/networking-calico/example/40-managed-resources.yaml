@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: calico
+  namespace: default
+type: Opaque
+data:
+  calico.yaml: aW5sY3VkZXMgc2VydmljZSBhY2NvdW50cywgQ1JEcywgRGFlbW9uc2V0Cg==
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: calico-config
+  namespace: default
+type: Opaque
+data:
+  config.yaml: dGhpcyBzaG91bGQgY29udGFpbiB0aGUgY2FsaWNvIGNvbmZpZwo=
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: calico-rbac
+  namespace: default
+type: Opaque
+data:
+  config.yaml: dGhpcyBzaG91bGQgY29udGFpbiB0aGUgY2FsaWNvIGNvbmZpZwo=
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: calico-psps
+  namespace: default
+type: Opaque
+data:
+  config.yaml: dGhpcyBzaG91bGQgY29udGFpbiBjYWxpY28gcHNwcwo=
+---
+apiVersion: resources.gardener.cloud/v1alpha1
+kind: ManagedResource
+metadata:
+  name: example
+  namespace: default
+spec:
+  secretRefs:
+  - name: calico-psps
+  - name: calico-config
+  - name: calico-rbac
+  - name: calico
+  injectLabels:
+    - shoot.gardener.cloud/no-cleanup: "true"
+

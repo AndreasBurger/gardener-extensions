@@ -180,3 +180,11 @@ start-certificate-service:
 		--leader-election=$(LEADER_ELECTION) \
 		--config=$(CERTIFICATE_SERVICE_CONFIG)
 
+.PHONY: start-networking-calico
+start-networking-calico:
+	@LEADER_ELECTION_NAMESPACE=garden go run \
+		-ldflags $(LD_FLAGS) \
+		./controllers/networking-calico/cmd/gardener-extension-networking-calico \
+		--leader-election=$(LEADER_ELECTION) \
+		--webhook-config-mode=url \
+		--webhook-config-name=gardener-extension-networking-calico

@@ -1,0 +1,13 @@
+---
+apiVersion: extensions.gardener.cloud/v1alpha1
+kind: Network
+metadata:
+  name: calico-network
+  namespace: default
+spec:
+  type: calico
+  podCIDR: 10.244.0.0/16
+  serviceCIDR:  10.96.0.0/24
+  providerConfig:
+    apiVersion: calico.extensions.gardener.cloud/v1alpha1
+    kind: NetworkConfig
